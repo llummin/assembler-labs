@@ -1,57 +1,67 @@
 ; Y = ((X + 1) * 10 % 3 - 150)/ X
-format PE console                                  ; Устанавливаем формат выходного файла, программа для консоли
+format PE console                                     ; Устанавливаем формат выходного файла, программа для консоли
 
-entry Start                                        ; Точка входа
+entry Start                                           ; Точка входа
 
-include 'win32a.inc'                               ; Подключаем заголовочный файл
+include 'win32a.inc'                                  ; Подключаем заголовочный файл
 
-section '.data' data readable writable             ; Секция данных, к которым мы будем обращаться
+section '.data' data readable writable                ; Секция данных, к которым мы будем обращаться
 
-        strX db 'Enter X: ', 0                     ; Строка для ввода X
-        resStr db 'Y: %d', 0                       ; Строка с результатом
+        strX db 'Enter X: ', 0                        ; Строка для ввода X
+        resStr db 'Y: %d', 0                          ; Строка с результатом
 
-        spaceStr db ' %d', 0                       ; Строка с пробелом
-        emptyStr db '%d', 0                        ; Пустая строка
+        spaceStr db ' %d', 0                          ; Строка с пробелом
+        emptyStr db '%d', 0                           ; Пустая строка
 
-        infinity db 'infinity', 0                  ; Вывод infinity
-        point db ',', 0                            ; Вывод запятой
+        error db 'Error: zero or not a number', 0     ; Вывод ошибки, когда ввели 0 или не число
+        point db ',', 0                               ; Вывод запятой
 
-        X dd ?                                     ; Считывание данных в метке X
-
-        
+        X dd ?                                        ; Считывание данных в метке X
+		
         NULL = 0            
 
-section '.code' code readable executable           ; Секция кода
+section '.code' code readable executable              ; Секция кода
 
         Start:
-                push strX                          ; Помещаем в стек strX
-                call [printf]                      ; Вызываем функцию printf 
+                push strX                             ; Помещаем в стек strX
+                call [printf]                         ; Вызываем функцию printf
 
-                push X                             ; Помещаем в стек метку X
-                push spaceStr                      ; Помещаем в стек пустую строку
-                call [scanf]                       ; Вызываем функцию scanf
+                push X                                ; Помещаем в стек метку X
+                push spaceStr                         ; Помещаем в стек пустую строку
+                call [scanf]                          ; Вызываем функцию scanf
 
-                mov   eax, [X]                     ; Помещаем X --> eax
-                add   eax, 1                       ; Добавляем к eax единицу
+                cmp  [X], 0                           ; Проверка на 0
+                jne  notNull                          ; Если не 0, то переходим на notNull
 
-                mov   ecx,10                       ; Помещаем 10 --> ecx
-                imul  ecx                          ; Умножение на ecx
+                push error                            ; Помещаем в стек infinity
+                call [printf]                         ; Вызываем функцию printf
+                jmp  finish                           ; Переходим к завершению программы, если X = 0
 
-                mov   ecx, 3                       ; Помещаем 3 --> ecx
-                idiv  ecx                          ; Деление
+        notNull:
+                mov  eax, [X]                         ; Помещаем X --> eax
+                add  eax, 1                           ; Добавляем к eax единицу
 
-                mov ecx, edx                       ; Помещаем edx --> ecx
-                sub ecx, 150                       ; Вычитание
+                mov  ecx, 10                          ; Помещаем 10 --> ecx
+                imul ecx                              ; Умножение на ecx
 
-                push  ecx                          ; Занесем в стек значение, которое хранится в edx
-                push  resStr                       ; Занесем в стек строку, которая содержит resStr
-                call  [printf]                     ; Вызываем функцию printf по ее адресу
+                mov  ecx, 3                           ; Помещаем 3 --> ecx
+                idiv ecx                              ; Деление
 
-                call [getch]                       ; Вызываем функцию getch
-                push NULL                          ; Добавляем в стек NULL
-                call [ExitProcess]                 ; Вызываем функцию ExitProcess
+                mov  ecx, edx                         ; Помещаем edx --> ecx
+                sub  ecx, 150                         ; Вычитание
 
-section '.idata' import data readable              ; Секция библиотек
+                push ecx                              ; Помещаем в стек ecx
+                push resStr                           ; Помещаем в стек результат
+                call [printf]                         ; Вызываем функцию printf
+
+        finish:
+ 
+                call [getch]                          ; Вызываем функцию getch
+                push NULL                             ; Добавляем в стек NULL
+                call [ExitProcess]                    ; Вызываем функцию ExitProcess
+
+
+section '.idata' import data readable                 ; Секция библиотек
 
         library kernel, 'kernel32.dll',\
                 msvcrt, 'msvcrt.dll'
