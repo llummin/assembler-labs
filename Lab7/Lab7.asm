@@ -40,7 +40,10 @@ section '.code' code readable executable           ; Секция кода
                 mov   ecx, 3                       ; Помещаем 3 --> ecx
                 idiv  ecx                          ; Деление
 
-                push  edx                          ; Занесем в стек значение, которое хранится в edx
+                mov ecx, edx                       ; Помещаем edx --> ecx
+                sub ecx, 150                       ; Вычитание
+
+                push  ecx                          ; Занесем в стек значение, которое хранится в edx
                 push  resStr                       ; Занесем в стек строку, которая содержит resStr
                 call  [printf]                     ; Вызываем функцию printf по ее адресу
 
