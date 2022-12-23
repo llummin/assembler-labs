@@ -16,7 +16,8 @@ section '.data' data readable writable             ; Секция данных, 
         infinity db 'infinity', 0                  ; Вывод infinity
         point db ',', 0                            ; Вывод запятой
 
-        X dd ?                                     ; Считывание данных в метке
+        X dd ?                                     ; Считывание данных в метке X
+
         
         NULL = 0            
 
@@ -29,22 +30,20 @@ section '.code' code readable executable           ; Секция кода
                 push X                             ; Помещаем в стек метку X
                 push spaceStr                      ; Помещаем в стек пустую строку
                 call [scanf]                       ; Вызываем функцию scanf
-                jmp  M1                            ; Переход к метке M1
 
-        M1:                                        ; Операция сложения на единицу
-                mov  eax, [X]                      ; Помещаем в eax X
-                add  eax, 1                        ; Добавляем к eax единицу
-                jmp  M2                            ; Переход к произведению
+                mov   eax, [X]                     ; Помещаем X --> eax
+                add   eax, 1                       ; Добавляем к eax единицу
 
-        M2:
-                imul eax, 10                       ; Умножение eax на 10
+                mov   ecx,10                       ; Помещаем 10 --> ecx
+                imul  ecx                          ; Умножение на ecx
 
-        result:
-                push eax                           ; Занесем в стек значение, которое хранится в eax
-                push resStr                        ; Занесем в стек строку, которая содержит resStr
-                call [printf]                      ; Вызываем функцию printf по ее адресу  
-                jmp  finish                        ; Переходим к метке выхода из программы
-        finish:
+                mov   ecx, 3                       ; Помещаем 3 --> ecx
+                idiv  ecx                          ; Деление
+
+                push  edx                          ; Занесем в стек значение, которое хранится в edx
+                push  resStr                       ; Занесем в стек строку, которая содержит resStr
+                call  [printf]                     ; Вызываем функцию printf по ее адресу
+
                 call [getch]                       ; Вызываем функцию getch
                 push NULL                          ; Добавляем в стек NULL
                 call [ExitProcess]                 ; Вызываем функцию ExitProcess
