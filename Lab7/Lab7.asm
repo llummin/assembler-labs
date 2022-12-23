@@ -1,3 +1,4 @@
+; Y = ((X + 1) * 10 % 3 - 150)/ X
 format PE console                                  ; Устанавливаем формат выходного файла, программа для консоли
 
 entry Start                                        ; Точка входа
@@ -7,7 +8,7 @@ include 'win32a.inc'                               ; Подключаем заг
 section '.data' data readable writable             ; Секция данных, к которым мы будем обращаться
 
         strX db 'Enter X: ', 0                     ; Строка для ввода X
-        resStr db 'Result: %d', 0                  ; Строка с результатом
+        resStr db 'Y: %d', 0                       ; Строка с результатом
 
         spaceStr db ' %d', 0                       ; Строка с пробелом
         emptyStr db '%d', 0                        ; Пустая строка
@@ -19,15 +20,32 @@ section '.data' data readable writable             ; Секция данных, 
         
         NULL = 0            
 
-section '.code' code readable executable
+section '.code' code readable executable           ; Секция кода
 
-	finish:
+        Start:
+                push strX                          ; Помещаем в стек strX
+                call [printf]                      ; Вызываем функцию printf 
 
-		call [getch]
-		push NULL
-		call [ExitProcess]
+                push X                             ; Помещаем в стек метку X
+                push spaceStr                      ; Помещаем в стек пустую строку
+                call [scanf]                       ; Вызываем функцию scanf
+                jmp  M1                            ; Переход к метке M1
 
-section '.idata' import data readable
+        M1:                                        ; Операция сложения на единицу
+                mov  ecx, [X]                      ; Помещаем в ecx X
+                add  ecx, 1                        ; Добавляем к ecx единицу
+
+        result:
+                push ecx                           ; Занесем в стек значение, которое хранится в ecx
+                push resStr                        ; Занесем в стек строку, которая содержит resStr
+                call [printf]                      ; Вызываем функцию printf по ее адресу  
+                                jmp  finish                                ; Переходим к метке выхода из программы
+                finish:
+                call [getch]                       ; Вызываем функцию getch
+                push NULL                          ; Добавляем в стек NULL
+                call [ExitProcess]                 ; Вызываем функцию ExitProcess
+
+section '.idata' import data readable              ; Секция библиотек
 
         library kernel, 'kernel32.dll',\
                 msvcrt, 'msvcrt.dll'
