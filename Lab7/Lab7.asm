@@ -32,15 +32,19 @@ section '.code' code readable executable           ; Секция кода
                 jmp  M1                            ; Переход к метке M1
 
         M1:                                        ; Операция сложения на единицу
-                mov  ecx, [X]                      ; Помещаем в ecx X
-                add  ecx, 1                        ; Добавляем к ecx единицу
+                mov  eax, [X]                      ; Помещаем в eax X
+                add  eax, 1                        ; Добавляем к eax единицу
+                jmp  M2                            ; Переход к произведению
+
+        M2:
+                imul eax, 10                       ; Умножение eax на 10
 
         result:
-                push ecx                           ; Занесем в стек значение, которое хранится в ecx
+                push eax                           ; Занесем в стек значение, которое хранится в eax
                 push resStr                        ; Занесем в стек строку, которая содержит resStr
                 call [printf]                      ; Вызываем функцию printf по ее адресу  
-                                jmp  finish                                ; Переходим к метке выхода из программы
-                finish:
+                jmp  finish                        ; Переходим к метке выхода из программы
+        finish:
                 call [getch]                       ; Вызываем функцию getch
                 push NULL                          ; Добавляем в стек NULL
                 call [ExitProcess]                 ; Вызываем функцию ExitProcess
