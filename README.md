@@ -6,3 +6,4 @@ __Лабораторные работы по курсу «Низкоуровне
 + *[Лабораторная работа №4. Средства ввода данных с клавиатуры](https://github.com/Flockk/assembler-labs/tree/main/Lab4)*
 + *[Лабораторная работа №5. Вывод текстовой информации на экран терминала](https://github.com/Flockk/assembler-labs/tree/main/Lab5)*
 + *[Лабораторная работа №6. Программирование операций над файлами](https://github.com/Flockk/assembler-labs/tree/main/Lab6)*
++ *[Лабораторная работа №7. Арифметические операции](https://github.com/Flockk/assembler-labs/tree/main/Lab7)*
