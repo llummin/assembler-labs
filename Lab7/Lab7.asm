@@ -14,10 +14,13 @@ section '.data' data readable writable                ; Секция данны�
         emptyStr db '%d', 0                           ; Пустая строка
 
         error db 'Error: zero or not a number', 0     ; Вывод ошибки, когда ввели 0 или не число
+        space db '', 0
         point db ',', 0                               ; Вывод запятой
 
-        X dd ?                                        ; Считывание данных в метке X
-		
+        X dd  0                                       ; Считывание данных в метке X
+        A dd ?
+        B dd ?
+
         NULL = 0            
 
 section '.code' code readable executable              ; Секция кода
@@ -30,6 +33,7 @@ section '.code' code readable executable              ; Секция кода
                 push spaceStr                         ; Помещаем в стек пустую строку
                 call [scanf]                          ; Вызываем функцию scanf
 
+        Null:
                 cmp  [X], 0                           ; Проверка на 0
                 jne  notNull                          ; Если не 0, то переходим на notNull
 
@@ -49,8 +53,16 @@ section '.code' code readable executable              ; Секция кода
 
                 mov  ecx, edx                         ; Помещаем edx --> ecx
                 sub  ecx, 150                         ; Вычитание
+                neg  ecx                              ; Делаем ecx положительным
 
-                push ecx                              ; Помещаем в стек ecx
+                mov  [A], ecx                         ; Помещаем ecx --> A
+                mov  eax, ecx                         ; Помещаем ecx --> eax
+                mov  ecx, [X]                         ; Помещаем X --> ecx
+                mov  edx, 0                           ; Помещаем 0 --> edx
+                idiv ecx                              ; Деление
+                neg  eax                              ; Делаем eax с другим знаком
+
+                push eax                              ; Помещаем в стек eax
                 push resStr                           ; Помещаем в стек результат
                 call [printf]                         ; Вызываем функцию printf
 
