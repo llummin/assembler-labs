@@ -3,39 +3,39 @@ TEXT SEGMENT 'CODE'
      ORG 100h
 MAIN PROC
     
-WINDOW:
-     MOV AH, 06h
-     MOV AL, 0           
-     MOV BH, 2Eh         
-     MOV CH, 0           
-     MOV CL, 0           
-     MOV DH, 26          
-     MOV DL, 88          
-     INT 10h
+WINDOW:                            ; Отображение первого окна
+     MOV AH, 06h                   ; Пересылка в AH функции 06h 
+     MOV AL, 0                     ; Очистка экрана           
+     MOV BH, 2Eh                   ; Атрибут символов BH: 2h - зелёный фон, Eh - желтый текст        
+     MOV CH, 0                     ; Координата первого окна X1          
+     MOV CL, 0                     ; Координата первого окна Y1
+     MOV DH, 26                    ; Координата первого окна X2         
+     MOV DL, 88                    ; Координата первого окна Y2         
+     INT 10h                       ; Прерывание, видеодрайвер BIOS
 
-WINDOW2:
-     MOV AH, 06h
-     MOV AL, 0           
-     MOV BH, 0Eh         
-     MOV CH, 8           
-     MOV CL, 26          
-     MOV DH, 20          
-     MOV DL, 54          
-     INT 10h
+WINDOW2:                           ; Отображение второго окна
+     MOV AH, 06h                   ; Пересылка в AH функции 06h
+     MOV AL, 0                     ; Очистка экрана           
+     MOV BH, 0Eh                   ; Атрибут символов BH: 0h - чёрный фон, Eh - желтый текст
+     MOV CH, 8                     ; Координата второго окна X1           
+     MOV CL, 26                    ; Координата второго окна Y1          
+     MOV DH, 20                    ; Координата второго окна X2
+     MOV DL, 54                    ; Координата второго окна Y2          
+     INT 10h                       ; Прерывание, видеодрайвер BIOS
 
-MESSAGE:
-     MOV AH, 13h 
-     MOV AL, 1       	  
-     MOV BL, 70h     	  
-     MOV BH, 0       	  
-	 MOV CX, 13     		
-     MOV DH, 14          
-     MOV DL, 34          
-     MOV BP, OFFSET MSG  
-     INT 10h
+MESSAGE:                           ; Вывод сообщения во втором окне 
+     MOV AH, 13h                   ; Запись строки в режиме телетайпа           
+     MOV AL, 1                     ; Режим - только коды символов       	  
+     MOV BL, 70h                   ; BL - атрибут     	  
+     MOV BH, 0                     ; BH - страница 0       	  
+     MOV CX, 13                    ; Длина строки     		
+     MOV DH, 14                    ; Номер строки          
+     MOV DL, 34                    ; Номер столбца          
+     MOV BP, OFFSET MSG            ; Адрес строки  
+     INT 10h                       ; Прерывание, видеодрайвер BIOS
 		
-EXIT:
-     MOV AH, 06h
+EXIT:                              ; Завершение программы и очистка окна
+     MOV AH, 06h                    
      MOV BH, 07h 
      MOV CH, 0
      MOV CL, 0
@@ -43,15 +43,15 @@ EXIT:
      MOV DL, 88
      INT 10h
 
-     MOV AH, 02h
+     MOV AH, 02h                   ; Установка курсора в левый верхний угол
      MOV BH, 0
-	 MOV DX, 0
-     INT 10h
+     MOV DX, 0
+     INT 10h                       ; Прерывание, видеодрайвер BIOS
 
-     MOV AX, 4C00h
-     INT 21h 
+     MOV AX, 4C00h                 ; Пересылка в AX функции 4C00h закрытия программы
+     INT 21h                       ; Функция прерывания 
 
 MAIN ENDP
-     MSG  DB 'Hello, World!','$'
+     MSG  DB 'Hello, World!','$'   ; Строка вывода на экран
      TEXT ENDS
 END MAIN
