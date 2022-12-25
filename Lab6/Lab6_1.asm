@@ -1,33 +1,33 @@
-TEXT SEGMENT 'CODE'
+TEXT SEGMENT 'CODE'                           
      ASSUME CS:text,SS:text,DS:text,ES:text
      ORG 100h
 MAIN PROC
 
-CREATEFILE:
-     MOV AH, 3Ch
-     MOV CX, 0
-     LEA DX, FILENAME
-     INT 21h
-     MOV HANDLE, AX
+CREATEFILE:                                     ; Метка создания файла
+     MOV AH, 3Ch                                ; Пересылка в AH функции 3Ch создания файла
+     MOV CX, 0                                  ; Файл без атрибутов   
+     LEA DX, FILENAME                           ; Загружаем в dx адрес с именем файла
+     INT 21h                                    ; Функция прерывания                                                 
+     MOV HANDLE, AX                             ; Handle - переменная для записи номера файла 
 
-WRITELINE:
-     MOV AH, 40h
-     MOV BX, HANDLE    
-     MOV CX, STRING_LEN    
-     LEA DX, STRING        
-     INT 21h
+WRITELINE:                                      ; Метка для записи строки
+     MOV AH, 40h                                ; Функция ввода строки
+     MOV BX, HANDLE                             ; Установливаем дескриптор   
+     MOV CX, STRING_LEN                         ; Число пересылаемых байт            
+     LEA DX, STRING                             ; Адрес буфера        
+     INT 21h                                    ; Функция прерывания        
 
-EXIT:
-     MOV AH, 3Eh     
-     MOV BX, HANDLE
-     INT 21h
-     MOV AX, 4C00h         
-     INT 21h 
+EXIT:                                           ; Метка закрытия файла
+     MOV AH, 3Eh                                ; Пересылка в AH функции 3Eh закрытия файла     
+     MOV BX, HANDLE                             ; Установливаем дескриптор 
+     INT 21h                                    ; Функция прерывания
+     MOV AX, 4C00h                              ; Пересылка в AX функции 3Eh закрытия программы                                       
+     INT 21h                                    ; Функция прерывания 
 
 MAIN ENDP
-     FILENAME DB 'file1.txt', 0
-     HANDLE DW ?
-     STRING DB 'Hello, world!', 0Dh, 0Ah
-     STRING_LEN EQU $-STRING
+     FILENAME DB 'file1.txt', 0                 ; Имя файла
+     HANDLE DW ?                                ; Ячейка для дескриптора 
+     STRING DB 'Hello, world!', 0Dh, 0Ah        ; Строка для записи в файл
+     STRING_LEN EQU $-STRING                    ; Длина строки
      TEXT ENDS
 END MAIN
