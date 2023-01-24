@@ -3,111 +3,111 @@ TEXT SEGMENT 'CODE'
 	 ORG  100h
 MAIN PROC
 
-	 MOV  DX,  40h                      
-	 MOV  ES,  DX             
-	 SUB  CX,  CX             
+	 MOV  DX,  40h              ; Заносим в DX число 40h (Функция DOS вывода строки на устройство)
+	 MOV  ES,  DX               ; Заносим в ES 64 (байт 40h)
+	 SUB  CX,  CX               ; Команда SUB очищает регистр CX, вычитая его из этого же регистра CX
 			
-	 MOV  AH,  09h           
-	 LEA  DX,  HINT           
-	 INT  21H                 
+	 MOV  AH,  09h              ; Заносим в регистр AH 09 для вывода на экран
+	 LEA  DX,  HINT             ; LEA ПРИЁМНИК, ИСТОЧНИК; LEA вычисляет эффективный адрес HINT и помещает его в DX
+	 INT  21H                   ; Команда прерывания
 
 START:                   
 		
-	 MOV  DL, 0FFh       
-	 MOV  AH, 06         
-	 INT  21H            
-	 JZ   EMPTYINPUT     
+	 MOV  DL, 0FFh              ; DL = код символа (0FFh) (при выводе)
+	 MOV  AH, 06                ; Функция 06: Прямой вывод - ввод
+	 INT  21H                   ; Команда прерывания
+	 JZ   EMPTYINPUT            ; Никакая клавиша не нажата (ZF = 1)
 	 
-	 CMP  AL, 68         
-	 JE   EXIT           
+	 CMP  AL, 68                ; Нажата клавиша F10
+	 JE   EXIT                  ; Переход, если нажата функциональная клавиша F10 (в AL из 21h вернулся 0)
 	 
 EXIT:
-	 RET                 
+	 RET                        ; Команда для выхода в DOS
 	 
 EMPTYINPUT:
-	 MOV  CX, 100        
+	 MOV  CX, 100               ; Количество повторений внешнего цикла
 	 
 CYCLE1:	 
-	 PUSH CX		  	 
-	 MOV  CX, 65535      
+	 PUSH CX                    ; Сохраняем CX, так как каждый из вложенных циклов управляется регистром CX
+	 MOV  CX, 65535             ; Количество повторений внутреннего цикла 65535
 	 
 CYCLE2:
-	 LOOP CYCLE2         
-	 POP  CX             
-	 LOOP CYCLE1	     
+	 LOOP CYCLE2                ; Конец цикла CYCLE2
+	 POP  CX                    ; Извлекаем CX
+	 LOOP CYCLE1                ; Конец цикла CYCLE1
 	 
-	 MOV  AH, 02          
-	 INT  16H	         
+	 MOV  AH, 02                ; Функция 02 (Определение текущего состояния клавиатуры, на выходе в AL будет статус клавиатуры)
+	 INT  16H                   ; Прерывание в BIOS
 
 CHEKCAPS: 
-	 TEST AL,64          
-	 JNE  PRINTCAPS	     
-	 MOV  STR2+11, 30h   
+	 TEST AL, 64                ; Логическое сравнение (AL - статус клавиатуры), 64 - 7й бит (CapsLock)
+	 JNE  PRINTCAPS             ; Переходит в PRINTCAPS, если TEST = true
+	 MOV  STR2 + 11, 30h        ; Иначе вставляет в строку вывода STR2 0
 	 	 
 CHEKNUM:	
-	 TEST AL,32           
-	 JNE  PRINTNUM        
-	 MOV  STR2+22, 30h    
+	 TEST AL, 32                ; Команда TEST приемник, источник. Логическое сравнение
+	 JNE  PRINTNUM              ; Переходит в PRINTNUM, если TEST = true
+	 MOV  STR2 + 22, 30h        ; Иначе вставляет в строку вывода STR2 0
 	 
 CHEKALT:
-	 TEST AL,8          
-	 JNE  PRINTALT        
-	 MOV  STR2+30, 30h    
-	 JMP  INIT            
+	 TEST AL, 8                 ; Логическое сравнение (AL - статус клавиатуры), 32 - 7й бит (CapsLock)
+	 JNE  PRINTALT              ; Переходит в PRINTALT, если TEST = true
+	 MOV  STR2 + 30, 30h        ; Иначе вставляет в строку вывода STR2 0
+	 JMP  INIT                  ; Переходим по адресу перехода при любых условиях (Метка INIT)
 	 
 PRINTCAPS:
-	 MOV  STR2+11, 31h    
-	 JMP  CHEKNUM         
+	 MOV  STR2 + 11, 31h        ; Вставляем в строку вывода STR2 1
+	 JMP  CHEKNUM               ; Переходим по адресу перехода при любых условиях (Метка CHEKNUM)
 	 
 PRINTNUM:
-	 MOV  STR2+22, 31h    
-	 JMP  CHEKALT         
+	 MOV  STR2 + 22, 31h        ; Вставляем в строку вывода STR2 1
+	 JMP  CHEKALT               ; Переходим по адресу перехода при любых условиях (Метка CHEKNUM)
 	 
 PRINTALT:
-	 MOV  STR2+30, 31h	 
+	 MOV  STR2 + 30, 31h        ; Вставляем в строку вывода STR2 1
 	 	 
-INIT:                    	
-	 MOV  AH,09h          
-	 LEA  DX, STR2       
-	 INT  21H	         
-	 JMP  START           
+INIT:                               ; ВЫВОД ПОДСКАЗКИ
+	 MOV  AH, 09h               ; Заносим в регистр AH 09 для вывода на экран
+	 LEA  DX, STR2              ; LEA ПРИЁМНИК, ИСТОЧНИК; LEA вычисляет эффективный адрес STR2 и помещает его в DX
+	 INT  21H                   ; Команда прерывания
+	 JMP  START                 ; Переходим по адресу перехода при любых условиях (Метка START) - прямой ближний переход
 	 
 CAPS:                  
-	 MOV  AL, ES:[17h]    
-	 TEST AL, 64          
-	 JE   ADD1             
-	 AND  AL, 191          
-	 MOV  ES:[17h], AL    
-	 MOV  STR2+11, 30h                        
-	 JMP  START           
+	 MOV  AL, ES:[17h]          ; Берется состояние клавиатуры в AL заностися  значение из байта 40h по смещению 17 (флаг клавиатуры, где фиксируются режимы)
+	 TEST AL, 64                ; Логическое И (AL - статус клавиатуры), 64 - 7й бит (CapsLock)
+	 JE   ADD1                  ; JE проверяет флаг ZF. Если ZF=1 (бит состояния капса был нулевым), то переход к МЕТКЕ ADD1
+	 AND  AL, 191               ; Делаем бит нулевым (логическое И числа 64_10 = 01000000 с числом 191_10 = 10111111)
+	 MOV  ES:[17h],  AL         ; В байт 40h по смещению 17 (флаг клавиатуры, где фиксируются режимы) заносится значение из AL
+	 MOV  STR2 + 11, 30h        ; Вставляем в строку вывода STR2 0
+	 JMP  START                 ; Переходим по адресу перехода при любых условиях (Метка START) - прямой ближний переход
 		
 ADD1:
-	 OR   AL, 64	         
-	 MOV  ES:[17h], AL    
-	 MOV  STR2+11, 31h    
-	 JMP  START           
+	 OR   AL, 64                ; Бит делаем единичным (логическое ИЛИ чисел 64_10 = 01000000 и хранящегося в AL)
+	 MOV  ES:[17h],  AL         ; В байт 40h по смещению 17 (флаг клавиатуры, где фиксируются режимы) заносится значение из AL
+	 MOV  STR2 + 11, 31h        ; Вставляем в строку вывода STR2 1
+	 JMP  START                 ; Переходим по адресу перехода при любых условиях (Метка START) - прямой ближний переход
 		
 NUM:
-	 MOV  AL, ES:[17h]    
-	 TEST AL,32           
-	 JE   ADD2             
-	 AND  AL,223          
-	 MOV  ES:[17h], AL 
-	 MOV  STR2+22, 30h
+	 MOV  AL, ES:[17h]          ; Берется состояние клавиатуры в AL заностися  значение из байта 40h по смещению 17 (флаг клавиатуры, где фиксируются режимы)
+	 TEST AL, 32                ; Логическое И (AL - статус клавиатуры), 32 - 6й бит (NumLock)
+	 JE   ADD2                  ; JE проверяет флаг ZF. Если ZF=1 (бит состояния капса был нулевым), то переход к МЕТКЕ ADD2
+	 AND  AL, 223          
+	 MOV  ES:[17h],  AL 
+	 MOV  STR2 + 22, 30h
 	 JMP  START
 
 ADD2:
 	 OR   AL, 32
-	 MOV  ES:[17h], AL 
-	 MOV  STR2+22, 31h
+	 MOV  ES:[17h],  AL 
+	 MOV  STR2 + 22, 31h
 	 JMP  START
 		
 ALT:
 	 MOV  AL, ES:[17h] 
-	 TEST AL,8
+	 TEST AL, 8
 	 JE   ADD3
-	 AND  AL,247
-	 MOV  STR2+30, 30h
+	 AND  AL, 247
+	 MOV  STR2 + 30, 30h
 	 MOV  ES:[17h], AL 
 	 JMP  START
 
